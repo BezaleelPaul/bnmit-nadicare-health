@@ -22,6 +22,32 @@ python data_gen.py
 streamlit run app.py
 ```
 
+## 📸 Application Screenshots
+
+### Dashboard Overview
+![Dashboard Overview](screenshots/screencapture-localhost-8501-2026-03-16-19_31_57.png)
+
+### Digital Twin Simulation
+![Digital Twin](screenshots/screencapture-localhost-8501-2026-03-16-19_34_08.png)
+
+### Strategy Comparison
+![Strategy Comparison](screenshots/screencapture-localhost-8501-2026-03-16-19_34_44.png)
+
+### Stress Predictor
+![Stress Predictor](screenshots/screencapture-localhost-8501-2026-03-16-19_35_10.png)
+
+### Model Performance
+![Model Performance](screenshots/screencapture-localhost-8501-2026-03-16-19_35_49.png)
+
+### Safety Monitor
+![Safety Monitor](screenshots/screencapture-localhost-8501-2026-03-16-19_38_57.png)
+
+### Real-Time Analysis
+![Real-Time Analysis](screenshots/screencapture-localhost-8501-2026-03-16-19_39_13.png)
+
+### About Section
+![About](screenshots/screencapture-localhost-8501-2026-03-16-19_36_07.png)
+
 ## 📁 Project Structure
 
 ```
@@ -30,12 +56,14 @@ nadicare/
 ├── data_gen.py             # 24-hour demo data generator
 ├── requirements.txt        # Python dependencies
 ├── demo_data.csv           # Generated after running data_gen.py
+├── README.md               # This file
 └── src/
     ├── __init__.py
     ├── models.py           # Pydantic schemas (HeartData, UserProfile, TwinState)
     ├── twin_engine.py      # DigitalTwin class — exponential decay model
     ├── analytics.py        # Cardiac Enhancement Score (CES) calculation
-    └── safety_monitor.py   # Boundary alert system
+    ├── safety_monitor.py   # Boundary alert system
+    └── stress_predictor.py # ML-based stress prediction
 ```
 
 ## 🧬 Core Algorithm
