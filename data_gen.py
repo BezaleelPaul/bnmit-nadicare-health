@@ -7,11 +7,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from src.models import UserProfile
-<<<<<<< HEAD
 from src.safety_monitor import CardiacMonitor
-=======
-from src.safety_monitor import check_safety_boundaries
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
 np.random.seed(42)
 
@@ -44,12 +40,8 @@ def generate_24h_demo(output_path: str = "demo_data.csv"):
         baseline_hrv=70,
     )
 
-<<<<<<< HEAD
     # Create monitor once for efficiency
     monitor = CardiacMonitor(demo_profile)
-
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     hrs, hrvs, loads, labels = [], [], [], []
     strategies, safety_levels = [], []
 
@@ -91,15 +83,10 @@ def generate_24h_demo(output_path: str = "demo_data.csv"):
         elif 8.5 <= hour < 10:
             t = (hour - 8.5) * 60  # 0–90 minutes
             # Exponential decay back to baseline
-<<<<<<< HEAD
             baseline_hr = demo_profile.baseline_hr
             baseline_hrv = demo_profile.baseline_hrv
             hr = baseline_hr + (145 - baseline_hr) * np.exp(-0.03 * t) + np.random.normal(0, 2)
             hrv = baseline_hrv - (baseline_hrv - 22) * np.exp(-0.025 * t) + np.random.normal(0, 3)
-=======
-            hr = 65 + (145 - 65) * np.exp(-0.03 * t) + np.random.normal(0, 2)
-            hrv = 65 - (65 - 22) * np.exp(-0.025 * t) + np.random.normal(0, 3)
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             load = max(0, 5 - t * 0.06)
             label = "Recovery"
 
@@ -148,11 +135,7 @@ def generate_24h_demo(output_path: str = "demo_data.csv"):
             strategy = "Baseline Day"
 
         # Safety boundary level for this minute given the demo profile
-<<<<<<< HEAD
         alert = monitor.check_all(hr_val, hrv_val)
-=======
-        alert = check_safety_boundaries(hr=hr_val, hrv=hrv_val, profile=demo_profile)
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         hrs.append(hr_val)
         hrvs.append(hrv_val)
@@ -172,7 +155,7 @@ def generate_24h_demo(output_path: str = "demo_data.csv"):
     })
 
     df.to_csv(output_path, index=False)
-    print(f"✅ Demo data saved to '{output_path}' ({len(df)} rows)")
+    print(f"Demo data saved to '{output_path}' ({len(df)} rows)")
     return df
 
 

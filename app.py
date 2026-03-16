@@ -5,41 +5,45 @@
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-<<<<<<< HEAD
 # #region agent log
 import json
 import time
-_DEBUG_LOG = "/Users/madhusudhana/Documents/Professional/NadiCare-health-main/.cursor/debug-7efaec.log"
+_DEBUG_LOG = None  # Disabled on Windows
+
 def _dbg(hid, loc, msg, data):
+    if _DEBUG_LOG is None:
+        return
     try:
         with open(_DEBUG_LOG, "a") as f:
             f.write(json.dumps({"sessionId": "7efaec", "hypothesisId": hid, "location": loc, "message": msg, "data": data, "timestamp": int(time.time() * 1000)}) + "\n")
     except Exception:
         pass
 # #endregion
-
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 import streamlit as st
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
-<<<<<<< HEAD
 from pathlib import Path as _PathLib
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 from src.models import UserProfile
 from src.twin_engine import DigitalTwin
 from src.analytics import cardiac_enhancement_score, ces_explanation
 from src.safety_monitor import check_safety_boundaries, AlertLevel, format_alert_badge
 
-<<<<<<< HEAD
 _PROJECT_ROOT = _PathLib(__file__).resolve().parent
 
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
+# Color constants used throughout the app
+NADI_HEART = "#f43f5e"    # Pink/red - heart accent
+NADI_PRIMARY = "#0ea5e9"  # Cyan/blue - primary brand
+NADI_SUCCESS = "#22c55e"   # Green - success/safe
+NADI_WARN = "#f59e0b"      # Orange - warning
+NADI_MUTED = "#8892a4"     # Gray - muted text
+
+# Plotly chart backgrounds
+PLOT_PAPER_BG = "rgba(13,17,23,0)"
+PLOT_BG = "rgba(13,17,23,0.5)"
+
 # ── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="NadiCare — Digital Twin",
@@ -48,185 +52,15 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-<<<<<<< HEAD
-# ── NadiCare Theme: Colors + Animations ───────────────────────────────────────
-# Palette: deep ocean (trust) + rose (vitality) + emerald (wellness)
-NADI_BG = "#0f1419"
-NADI_SURFACE = "#1a2332"
-NADI_CARD = "#1e2d3d"
-NADI_PRIMARY = "#0ea5e9"      # sky — clarity, digital
-NADI_HEART = "#f43f5e"       # rose — heart, vitality
-NADI_SUCCESS = "#22c55e"
-NADI_WARN = "#f59e0b"
-NADI_TEXT = "#f1f5f9"
-NADI_MUTED = "#94a3b8"
-PLOT_PAPER_BG = "rgba(15,20,25,0)"
-PLOT_BG = "rgba(26,35,50,0.6)"
-
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
-    /* Base */
-    html, body, [class*="css"] {
-        font-family: 'Outfit', sans-serif;
-        color: #e2e8f0;
-    }
-    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        font-family: 'Outfit', sans-serif !important;
-        font-weight: 700 !important;
-        color: #f1f5f9 !important;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-    }
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes gentlePulse {
-        0%, 100% { opacity: 1; }
-        50%      { opacity: 0.85; }
-    }
-    @keyframes shimmer {
-        0%   { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-    @keyframes cardGlow {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.15); }
-        50%      { box-shadow: 0 0 24px 2px rgba(14, 165, 233, 0.2); }
-    }
-
-    .stApp {
-        background: linear-gradient(165deg, #0f1419 0%, #131b28 50%, #0f1419 100%);
-        background-attachment: fixed;
-    }
-
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1a2332 0%, #151d2b 100%) !important;
-        border-right: 1px solid rgba(14, 165, 233, 0.12);
-    }
-    [data-testid="stSidebar"] .stMarkdown { color: #94a3b8; }
-
-    /* Metric cards — animated entrance */
-    [data-testid="stMetric"] {
-        background: linear-gradient(145deg, #1a2332 0%, #1e2d3d 100%);
-        border: 1px solid rgba(14, 165, 233, 0.2);
-        border-radius: 14px;
-        padding: 18px !important;
-        animation: slideUp 0.5s ease-out, cardGlow 4s ease-in-out infinite;
-        transition: transform 0.25s ease, border-color 0.25s ease;
-    }
-    [data-testid="stMetric"]:hover {
-        transform: translateY(-2px);
-        border-color: rgba(14, 165, 233, 0.35);
-    }
-    [data-testid="stMetricValue"] {
-        color: #0ea5e9 !important;
-        font-family: 'Outfit', sans-serif !important;
-        font-size: 1.85rem !important;
-        font-weight: 700 !important;
-    }
-    [data-testid="stMetricLabel"] {
-        color: #94a3b8 !important;
-        font-weight: 500 !important;
-    }
-
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        background: #1a2332;
-        border-radius: 12px;
-        padding: 6px;
-        gap: 6px;
-        border: 1px solid rgba(14, 165, 233, 0.15);
-    }
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 10px;
-        color: #94a3b8;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 600;
-        padding: 10px 22px;
-        transition: all 0.3s ease;
-    }
-    .stTabs [data-baseweb="tab"]:hover {
-        color: #e2e8f0;
-        background: rgba(14, 165, 233, 0.08);
-    }
-    .stTabs [aria-selected="true"] {
+st.markdown("""<style>
         background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #f43f5e 100%) !important;
         color: white !important;
         box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
-=======
-# ── Custom CSS ─────────────────────────────────────────────────────────────────
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'DM Sans', sans-serif;
     }
-
-    h1, h2, h3 {
-        font-family: 'Syne', sans-serif !important;
-    }
-
-    /* Dark background */
-    .stApp {
-        background: #080c14;
-    }
-
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: #0d1117 !important;
-        border-right: 1px solid #1e2a3a;
-    }
-
-    /* Metric cards */
-    [data-testid="stMetric"] {
-        background: linear-gradient(135deg, #0d1b2a, #112240);
-        border: 1px solid #1e3a5f;
-        border-radius: 12px;
-        padding: 16px !important;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #00d4ff !important;
-        font-family: 'Syne', sans-serif !important;
-        font-size: 1.8rem !important;
-    }
-
-    [data-testid="stMetricLabel"] {
-        color: #8892a4 !important;
-    }
-
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        background: #0d1117;
-        border-radius: 10px;
-        padding: 4px;
-        gap: 4px;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        color: #8892a4;
-        font-family: 'Syne', sans-serif;
-        font-weight: 600;
-        padding: 8px 20px;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #e94560, #c0392b) !important;
-        color: white !important;
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     }
 
     /* Buttons */
     .stButton > button {
-<<<<<<< HEAD
         background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
         color: white;
         border: none;
@@ -271,37 +105,11 @@ st.markdown("""
         background-size: 200% 100%;
         border-radius: 6px;
         animation: shimmer 2s ease-in-out infinite;
-=======
-        background: linear-gradient(135deg, #e94560, #c0392b);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-family: 'Syne', sans-serif;
-        font-weight: 700;
-        padding: 10px 24px;
-        transition: all 0.2s ease;
     }
-
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(233, 69, 96, 0.4);
-    }
-
-    /* Alerts */
-    .stAlert {
-        border-radius: 10px !important;
-    }
-
-    /* Progress bars */
-    .stProgress > div > div {
-        background: linear-gradient(90deg, #e94560, #00d4ff);
-        border-radius: 4px;
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     }
 
     /* Expander */
     .streamlit-expanderHeader {
-<<<<<<< HEAD
         background: linear-gradient(135deg, #1a2332 0%, #1e2d3d 100%) !important;
         border-radius: 10px !important;
         font-family: 'Outfit', sans-serif !important;
@@ -342,27 +150,11 @@ st.markdown("""
         overflow: hidden;
         animation: slideUp 0.6s ease-out, cardGlow 5s ease-in-out infinite;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-=======
-        background: #0d1b2a !important;
-        border-radius: 8px !important;
-        font-family: 'Syne', sans-serif !important;
     }
-
-    /* Header glow */
-    .nadicare-header {
-        background: linear-gradient(135deg, #0d1b2a 0%, #112240 100%);
-        border: 1px solid #1e3a5f;
-        border-radius: 16px;
-        padding: 24px 32px;
-        margin-bottom: 24px;
-        position: relative;
-        overflow: hidden;
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     }
     .nadicare-header::before {
         content: '';
         position: absolute;
-<<<<<<< HEAD
         top: -80%;
         left: -20%;
         width: 60%;
@@ -446,43 +238,7 @@ st.markdown("""
         border-radius: 12px;
         overflow: hidden;
         border: 1px solid rgba(14, 165, 233, 0.15);
-=======
-        top: -50%;
-        left: -10%;
-        width: 40%;
-        height: 200%;
-        background: radial-gradient(ellipse, rgba(233,69,96,0.12) 0%, transparent 70%);
-        pointer-events: none;
     }
-    .nadicare-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #ffffff;
-        margin: 0;
-        line-height: 1.1;
-    }
-    .nadicare-title span {
-        color: #e94560;
-    }
-    .nadicare-subtitle {
-        color: #8892a4;
-        margin-top: 6px;
-        font-size: 0.95rem;
-        letter-spacing: 0.04em;
-    }
-    .stat-pill {
-        display: inline-block;
-        background: rgba(0,212,255,0.1);
-        border: 1px solid rgba(0,212,255,0.25);
-        border-radius: 20px;
-        padding: 4px 14px;
-        color: #00d4ff;
-        font-size: 0.8rem;
-        font-weight: 500;
-        margin-right: 8px;
-        margin-top: 12px;
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     }
 </style>
 """, unsafe_allow_html=True)
@@ -530,19 +286,12 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ── Tabs ───────────────────────────────────────────────────────────────────────
-<<<<<<< HEAD
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-=======
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     "🏃 Live Simulation",
     "📊 24-Hour Analysis",
     "🎯 Strategy Simulator",
     "🧠 Stress Predictor",
-<<<<<<< HEAD
     "📈 Model Performance",
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     "ℹ️ About"
 ])
 
@@ -595,39 +344,23 @@ with tab1:
         fig.add_trace(go.Scatter(
             x=time_minutes, y=curve["predicted_hr"],
             mode="lines", name="🤖 Twin Prediction (HR)",
-<<<<<<< HEAD
             line=dict(color=NADI_PRIMARY, width=3, dash="dash"),
-=======
-            line=dict(color="#00d4ff", width=3, dash="dash"),
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         ))
         fig.add_trace(go.Scatter(
             x=time_minutes, y=actual_hr,
             mode="lines", name="❤️ Actual HR",
-<<<<<<< HEAD
             line=dict(color=NADI_HEART, width=2.5),
-=======
-            line=dict(color="#e94560", width=2),
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         ))
         fig.add_trace(go.Scatter(
             x=time_minutes, y=curve["predicted_hrv"],
             mode="lines", name="🤖 Twin Prediction (HRV)",
-<<<<<<< HEAD
             line=dict(color="#34d399", width=3, dash="dash"),
-=======
-            line=dict(color="#a8ff78", width=3, dash="dash"),
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             yaxis="y2",
         ))
         fig.add_trace(go.Scatter(
             x=time_minutes, y=actual_hrv,
             mode="lines", name="💚 Actual HRV",
-<<<<<<< HEAD
             line=dict(color=NADI_SUCCESS, width=2.5),
-=======
-            line=dict(color="#56ab2f", width=2),
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             yaxis="y2",
         ))
         fig.add_hline(
@@ -642,7 +375,6 @@ with tab1:
             yaxis_title="Heart Rate (BPM)",
             yaxis2=dict(title="HRV (ms)", overlaying="y", side="right"),
             template="plotly_dark",
-<<<<<<< HEAD
             paper_bgcolor=PLOT_PAPER_BG,
             plot_bgcolor=PLOT_BG,
             font=dict(color=NADI_MUTED, family="Outfit"),
@@ -650,14 +382,6 @@ with tab1:
             height=450,
         )
         st.plotly_chart(fig, use_container_width=True)
-=======
-            paper_bgcolor="rgba(13,17,23,0)",
-            plot_bgcolor="rgba(13,17,23,0.5)",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02),
-            height=450,
-        )
-        st.plotly_chart(fig, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         st.markdown("### 📈 Snapshot at Peak Stress")
         ces = cardiac_enhancement_score(
@@ -679,11 +403,7 @@ with tab1:
         else:
             st.success(alert.message)
 
-<<<<<<< HEAD
         st.markdown("### 🧠 Explainability")
-=======
-        st.markdown("### 🧠 AI Explainability")
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         with st.expander("Why did my CES change? (Click to expand)", expanded=True):
             explanation = ces_explanation(
                 ces=ces, actual_hr=hr_peak, predicted_hr=hr_peak,
@@ -699,7 +419,6 @@ with tab2:
     st.markdown("Load the demo data to see a full day analysis with CES tracking.")
 
     if st.button("📂 Load 24-Hour Demo Data"):
-<<<<<<< HEAD
         demo_path = _PROJECT_ROOT / "demo_data.csv"
         # #region agent log
         import os
@@ -720,14 +439,6 @@ with tab2:
             # #region agent log
             _dbg("A", "app.py:Tab2_after_gen", "Tab2 after generate_24h_demo", {"rows": len(df), "columns": list(df.columns)})
             # #endregion
-=======
-        try:
-            df = pd.read_csv("demo_data.csv", parse_dates=["timestamp"])
-        except FileNotFoundError:
-            st.info("Generating demo data first...")
-            from data_gen import generate_24h_demo
-            df = generate_24h_demo()
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         twin_temp = DigitalTwin(profile=profile, decay_rate=decay_rate)
         twin_temp.apply_stress_event(hr_peak=df["hr"].max(), hrv_dip=df["hrv"].min())
@@ -745,17 +456,10 @@ with tab2:
 
         fig2 = go.Figure()
         for phase, color in [
-<<<<<<< HEAD
             ("Sleep",        NADI_PRIMARY), ("Wake-Up",      NADI_WARN),
             ("Warm-Up",      NADI_HEART),   ("Sprint",       "#ec4899"),
             ("Recovery",     "#a78bfa"),    ("Normal",       NADI_SUCCESS),
             ("Evening Walk", "#fb923c"),     ("Wind-Down",    "#6366f1"),
-=======
-            ("Sleep",        "#3a86ff"), ("Wake-Up",      "#ffbe0b"),
-            ("Warm-Up",      "#fb5607"), ("Sprint",       "#ff006e"),
-            ("Recovery",     "#8338ec"), ("Normal",       "#06d6a0"),
-            ("Evening Walk", "#f77f00"), ("Wind-Down",    "#7209b7"),
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         ]:
             mask = df["label"] == phase
             if mask.any():
@@ -771,51 +475,30 @@ with tab2:
             title="24-Hour Heart Rate by Activity Phase",
             xaxis_title="Time", yaxis_title="HR (BPM)",
             template="plotly_dark",
-<<<<<<< HEAD
             paper_bgcolor=PLOT_PAPER_BG,
             plot_bgcolor=PLOT_BG,
             font=dict(color=NADI_MUTED, family="Outfit"),
             height=400,
         )
         st.plotly_chart(fig2, use_container_width=True)
-=======
-            paper_bgcolor="rgba(13,17,23,0)",
-            plot_bgcolor="rgba(13,17,23,0.5)",
-            height=400,
-        )
-        st.plotly_chart(fig2, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         fig3 = go.Figure()
         fig3.add_trace(go.Scatter(
             x=df["timestamp"], y=df["ces"],
             mode="lines", name="CES Score",
-<<<<<<< HEAD
             line=dict(color=NADI_PRIMARY, width=2.5),
             fill="tozeroy", fillcolor="rgba(14,165,233,0.12)",
-=======
-            line=dict(color="#ffd700", width=2),
-            fill="tozeroy", fillcolor="rgba(255,215,0,0.08)",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         ))
         fig3.update_layout(
             title="Cardiac Enhancement Score — 24 Hours",
             xaxis_title="Time", yaxis_title="CES (0–100)",
             template="plotly_dark",
-<<<<<<< HEAD
             paper_bgcolor=PLOT_PAPER_BG,
             plot_bgcolor=PLOT_BG,
             font=dict(color=NADI_MUTED, family="Outfit"),
             height=300,
         )
         st.plotly_chart(fig3, use_container_width=True)
-=======
-            paper_bgcolor="rgba(13,17,23,0)",
-            plot_bgcolor="rgba(13,17,23,0.5)",
-            height=300,
-        )
-        st.plotly_chart(fig3, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         s1, s2, s3, s4 = st.columns(4)
         s1.metric("Avg HR",   f"{df['hr'].mean():.1f} BPM")
@@ -864,11 +547,7 @@ with tab3:
 
     strategies = {
         "🏋️ 4×4 Interval Training": {
-<<<<<<< HEAD
             "color": NADI_HEART,
-=======
-            "color": "#e94560",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             "weekly_ces_gain":    2.8 * fitness_multiplier,
             "hrv_gain_per_week":  1.2 * fitness_multiplier,
             "hr_drop_per_week":   0.4 * fitness_multiplier,
@@ -880,11 +559,7 @@ with tab3:
             "best_for":    "Athletes wanting maximum aerobic adaptation",
         },
         "🔄 8×2 HIIT Burst": {
-<<<<<<< HEAD
             "color": NADI_WARN,
-=======
-            "color": "#ff9f1c",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             "weekly_ces_gain":    2.2 * fitness_multiplier,
             "hrv_gain_per_week":  0.9 * fitness_multiplier,
             "hr_drop_per_week":   0.3 * fitness_multiplier,
@@ -896,11 +571,7 @@ with tab3:
             "best_for":    "Time-limited athletes, fat oxidation",
         },
         "🌬️ Box Breathing Protocol": {
-<<<<<<< HEAD
             "color": NADI_PRIMARY,
-=======
-            "color": "#00d4ff",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             "weekly_ces_gain":    1.0 * fitness_multiplier,
             "hrv_gain_per_week":  2.1 * fitness_multiplier,  # Best HRV gains
             "hr_drop_per_week":   0.6 * fitness_multiplier,  # Best resting HR drop
@@ -912,11 +583,7 @@ with tab3:
             "best_for":    "Stress reduction, HRV optimisation, sleep quality",
         },
         "😴 Recovery Optimisation": {
-<<<<<<< HEAD
             "color": NADI_SUCCESS,
-=======
-            "color": "#a8ff78",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             "weekly_ces_gain":    1.4 * fitness_multiplier,
             "hrv_gain_per_week":  1.8 * fitness_multiplier,
             "hr_drop_per_week":   0.5 * fitness_multiplier,
@@ -928,11 +595,7 @@ with tab3:
             "best_for":    "Overtraining recovery, long-term HRV improvement",
         },
         "🔀 Combined Protocol": {
-<<<<<<< HEAD
             "color": "#a78bfa",
-=======
-            "color": "#d4a5ff",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             "weekly_ces_gain":    3.2 * fitness_multiplier,  # Best overall
             "hrv_gain_per_week":  2.0 * fitness_multiplier,
             "hr_drop_per_week":   0.7 * fitness_multiplier,
@@ -991,18 +654,13 @@ with tab3:
                 marker=dict(size=5),
             ))
 
-<<<<<<< HEAD
         fig_ces.add_hline(y=initial_ces, line_dash="dot", line_color=NADI_MUTED,
-=======
-        fig_ces.add_hline(y=initial_ces, line_dash="dot", line_color="#8892a4",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                           annotation_text=f"Your current CES: {initial_ces:.1f}", annotation_position="right")
         fig_ces.update_layout(
             title="📈 Predicted CES Progression by Strategy",
             xaxis_title="Week",
             yaxis_title="Cardiac Enhancement Score (0–100)",
             template="plotly_dark",
-<<<<<<< HEAD
             paper_bgcolor=PLOT_PAPER_BG,
             plot_bgcolor=PLOT_BG,
             font=dict(color=NADI_MUTED, family="Outfit"),
@@ -1010,14 +668,6 @@ with tab3:
             height=420,
         )
         st.plotly_chart(fig_ces, use_container_width=True)
-=======
-            paper_bgcolor="rgba(13,17,23,0)",
-            plot_bgcolor="rgba(13,17,23,0.5)",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02),
-            height=420,
-        )
-        st.plotly_chart(fig_ces, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         # ── HRV + Resting HR side-by-side ──────────────────────────────────────
         col_hrv, col_hr = st.columns(2)
@@ -1031,30 +681,18 @@ with tab3:
                     mode="lines", name=name_s,
                     line=dict(color=s["color"], width=2),
                 ))
-<<<<<<< HEAD
             fig_hrv.add_hline(y=baseline_hrv, line_dash="dot", line_color=NADI_MUTED,
-=======
-            fig_hrv.add_hline(y=baseline_hrv, line_dash="dot", line_color="#8892a4",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                                annotation_text="Baseline HRV")
             fig_hrv.update_layout(
                 title="💚 HRV Improvement",
                 xaxis_title="Week", yaxis_title="HRV (ms)",
                 template="plotly_dark",
-<<<<<<< HEAD
                 paper_bgcolor=PLOT_PAPER_BG,
                 plot_bgcolor=PLOT_BG,
                 font=dict(color=NADI_MUTED, family="Outfit"),
                 showlegend=False, height=300,
             )
             st.plotly_chart(fig_hrv, use_container_width=True)
-=======
-                paper_bgcolor="rgba(13,17,23,0)",
-                plot_bgcolor="rgba(13,17,23,0.5)",
-                showlegend=False, height=300,
-            )
-            st.plotly_chart(fig_hrv, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         with col_hr:
             fig_hr = go.Figure()
@@ -1065,30 +703,19 @@ with tab3:
                     mode="lines", name=name_s,
                     line=dict(color=s["color"], width=2),
                 ))
-<<<<<<< HEAD
+
             fig_hr.add_hline(y=baseline_hr, line_dash="dot", line_color=NADI_MUTED,
-=======
-            fig_hr.add_hline(y=baseline_hr, line_dash="dot", line_color="#8892a4",
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                               annotation_text="Baseline HR")
             fig_hr.update_layout(
                 title="❤️ Resting HR Reduction",
                 xaxis_title="Week", yaxis_title="Resting HR (BPM)",
                 template="plotly_dark",
-<<<<<<< HEAD
                 paper_bgcolor=PLOT_PAPER_BG,
                 plot_bgcolor=PLOT_BG,
                 font=dict(color=NADI_MUTED, family="Outfit"),
                 showlegend=False, height=300,
             )
             st.plotly_chart(fig_hr, use_container_width=True)
-=======
-                paper_bgcolor="rgba(13,17,23,0)",
-                plot_bgcolor="rgba(13,17,23,0.5)",
-                showlegend=False, height=300,
-            )
-            st.plotly_chart(fig_hr, width='stretch')
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
         # ── Projected Impact Summary Table ─────────────────────────────────────
         st.markdown("### 📊 Projected Impact at Week " + str(sim_weeks))
@@ -1177,7 +804,6 @@ with tab3:
                     fig_mini = go.Figure(go.Indicator(
                         mode="gauge+number",
                         value=res["ces"][-1],
-<<<<<<< HEAD
                         title={"text": f"Week {sim_weeks} CES", "font": {"color": NADI_MUTED, "size": 12}},
                         gauge={
                             "axis":  {"range": [0, 100], "tickcolor": NADI_MUTED},
@@ -1186,16 +812,6 @@ with tab3:
                                 {"range": [0,  40], "color": "#1a2332"},
                                 {"range": [40, 70], "color": "#1e2d3d"},
                                 {"range": [70, 100],"color": "#243447"},
-=======
-                        title={"text": f"Week {sim_weeks} CES", "font": {"color": "#8892a4", "size": 12}},
-                        gauge={
-                            "axis":  {"range": [0, 100], "tickcolor": "#8892a4"},
-                            "bar":   {"color": s["color"]},
-                            "steps": [
-                                {"range": [0,  40], "color": "#1a1a2e"},
-                                {"range": [40, 70], "color": "#112240"},
-                                {"range": [70, 100],"color": "#0d2b45"},
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                             ],
                         },
                         number={"font": {"color": s["color"], "size": 28}},
@@ -1206,7 +822,7 @@ with tab3:
                         height=200,
                         margin=dict(t=30, b=0, l=10, r=10),
                     )
-                    st.plotly_chart(fig_mini, width='stretch')
+                    st.plotly_chart(fig_mini, use_container_width=True)
 
         # ── Personalised Recommendation ────────────────────────────────────────
         st.markdown("### 🏆 Personalised Recommendation")
@@ -1225,10 +841,6 @@ with tab3:
             f"Best for: {strategies[safest]['best_for']}"
         )
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — STRESS PREDICTOR
-# ═══════════════════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 4 — STRESS PREDICTOR (ML MODEL)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1302,102 +914,10 @@ with tab4:
                     "bgcolor": "rgba(26,35,50,0.8)",
                 },
                 number={"font": {"color": cfg["color"], "size": 42}},
-=======
-with tab4:
-    st.subheader("🧠 HRV Stress Predictor — Powered by Your Trained Model")
-    st.markdown("Enter your HRV readings and the model will classify your stress state in real time.")
-
-    @st.cache_resource
-    def get_model():
-        try:
-            from src.stress_predictor import load_model
-            return load_model("hrv_stress_model.pkl")
-        except FileNotFoundError:
-            return None
-
-    bundle = get_model()
-
-    if bundle is None:
-        st.error("❌ `hrv_stress_model.pkl` not found. Run the Jupyter training notebook first and place the file in the nadicare/ folder.")
-    else:
-        st.success("✅ Trained HRV model loaded successfully!")
-
-        st.markdown("#### Enter Your HRV Metrics")
-        c1, c2, c3, c4 = st.columns(4)
-        input_rmssd   = c1.number_input("RMSSD (ms)",     min_value=1.0,   max_value=200.0,  value=30.0)
-        input_mean_rr = c2.number_input("Mean RR (ms)",   min_value=300.0, max_value=1500.0, value=880.0)
-        input_hr      = c3.number_input("HR (BPM)",       min_value=30.0,  max_value=200.0,  value=70.0)
-        input_sdnn    = c4.number_input("SDNN (ms)",      min_value=1.0,   max_value=200.0,  value=60.0)
-
-        if st.button("🔍 Predict Stress State", type="primary"):
-            from src.stress_predictor import predict_stress, hrv_to_features
-
-            features = hrv_to_features(
-                rmssd=input_rmssd,
-                mean_rr=input_mean_rr,
-                hr=input_hr,
-                sdnn=input_sdnn
-            )
-            result    = predict_stress(features, bundle)
-            condition = result['condition']
-            confidence = result['confidence']
-            probabilities = result['probabilities']
-
-            colour_map = {
-                "no stress":    ("🟢", "success"),
-                "interruption": ("🟡", "warning"),
-                "stress":       ("🔴", "error"),
-            }
-            icon, alert_type = colour_map.get(condition, ("⚪", "info"))
-            getattr(st, alert_type)(
-                f"{icon} **Predicted State: {condition.upper()}** — Confidence: {confidence}%"
-            )
-
-            st.markdown("#### Probability Breakdown")
-            for label, prob in sorted(probabilities.items(), key=lambda x: -x[1]):
-                st.progress(float(prob), text=f"{label}: {prob*100:.1f}%")
-
-            st.markdown("#### 💡 Recommendation")
-            recs = {
-                "no stress":    "✅ Your autonomic nervous system is balanced. Great time to train or focus on deep work.",
-                "interruption": "⚠️ Mild sympathetic activation detected. Try 5 minutes of slow breathing (4-7-8 technique).",
-                "stress":       "🔴 High stress state detected. Avoid intense exercise. Prioritise rest, hydration, and recovery.",
-            }
-            st.info(recs.get(condition, "Monitor your HRV over the next 30 minutes."))
-
-            # Cross-check with safety monitor
-            safety_alert = check_safety_boundaries(input_hr, input_rmssd, profile)
-            if safety_alert.level == AlertLevel.CRITICAL:
-                st.error(f"**Safety Check:** {safety_alert.message}\n\n{safety_alert.recommendation}")
-            elif safety_alert.level == AlertLevel.WARNING:
-                st.warning(f"**Safety Check:** {safety_alert.message}\n\n{safety_alert.recommendation}")
-
-            # Gauge chart for confidence
-            fig_gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=confidence,
-                title={"text": "Model Confidence (%)", "font": {"color": "#8892a4"}},
-                gauge={
-                    "axis": {"range": [0, 100], "tickcolor": "#8892a4"},
-                    "bar":  {"color": "#e94560"},
-                    "steps": [
-                        {"range": [0,  50], "color": "#1a1a2e"},
-                        {"range": [50, 75], "color": "#112240"},
-                        {"range": [75, 100],"color": "#0d2b45"},
-                    ],
-                    "threshold": {
-                        "line":  {"color": "#00d4ff", "width": 3},
-                        "thickness": 0.75,
-                        "value": 90
-                    }
-                },
-                number={"suffix": "%", "font": {"color": "#00d4ff", "size": 36}},
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             ))
             fig_gauge.update_layout(
                 template="plotly_dark",
                 paper_bgcolor="rgba(0,0,0,0)",
-<<<<<<< HEAD
                 height=290,
                 margin=dict(t=50, b=10, l=30, r=30),
                 font=dict(family="Outfit"),
@@ -1725,7 +1245,8 @@ with tab5:
             "predicted_stress": y_pred_labels,
             "confidence": np.max(y_prob, axis=1) * 100,
             "RMSSD": rmssd[:len(X_test)],
-            "HR": hr[:len(X_test)]
+            "HR": hr[:len(X_test)],
+            "correct": [a == p for a, p in zip(actual_stress, y_pred_labels)]
         })
 
         # Mock classification report for synthetic data
@@ -2235,17 +1756,6 @@ with tab5:
 # TAB 6 — ABOUT
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab6:
-=======
-                height=280,
-                margin=dict(t=40, b=10)
-            )
-            st.plotly_chart(fig_gauge, width='stretch')
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — ABOUT
-# ═══════════════════════════════════════════════════════════════════════════════
-with tab5:
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     st.subheader("ℹ️ About NadiCare")
     st.markdown("""
 **NadiCare** is a Cardio-Fitness Digital Twin built for the healthcare hackathon by Team NadiCare.
@@ -2284,11 +1794,7 @@ CES = 100 × (HRV_actual / HRV_baseline)
 
 ### 👥 Team
 - **Lead Developer:** Bezaleel Paul N.
-<<<<<<< HEAD
 - **Researchers:** Madhusudhana S and Aditya S
-=======
-- **Researchers:** MadhuSudhana S and Adithya S
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 - **University:** CMR University, Bangalore
 - **Project:** NadiCare — Hackathon Submission
 

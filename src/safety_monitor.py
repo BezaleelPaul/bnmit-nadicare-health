@@ -11,15 +11,11 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime, timedelta
-<<<<<<< HEAD
 try:
     import joblib
     HAS_JOBLIB = True
 except ImportError:
     HAS_JOBLIB = False
-=======
-
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 from src.models import (
     UserProfile, HRV_CRITICAL_MS, HRV_WARNING_MS, HRV_HIGH_MS,
     HR_CRITICAL_PCT, HR_WARNING_PCT
@@ -61,7 +57,6 @@ class CardiacMonitor:
             return {}
         
         try:
-<<<<<<< HEAD
             # Try joblib first, then pickle
             if HAS_JOBLIB:
                 try:
@@ -72,10 +67,6 @@ class CardiacMonitor:
             else:
                 with open(p, "rb") as f:
                     bundle = pickle.load(f)
-=======
-            with open(p, "rb") as f:
-                bundle = pickle.load(f)
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
             return bundle
         except Exception as e:
             print(f"⚠️ Model load failed: {e} - stress prediction disabled")
@@ -306,11 +297,7 @@ def check_safety_boundaries(hr: float, hrv: float, profile: UserProfile) -> Card
 def predict_stress(features: Dict, model_bundle: Dict = None) -> Dict:
     """Legacy ML API - accepts a model bundle dict."""
     if model_bundle is None:
-<<<<<<< HEAD
         bundle = CardiacMonitor(None)._load_stress_model("stress_prediction_model.pkl")
-=======
-        bundle = CardiacMonitor(None)._load_stress_model("hrv_stress_model.pkl")
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         if not bundle:
             return {"error": "No model"}
     else:

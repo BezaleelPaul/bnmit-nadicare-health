@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # src/stress_predictor.py
-=======
-# src/cardiac_intelligence.py
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 # Perfect Cardiac Monitor: Safety Boundaries + ML Stress Prediction + Trends
 # Production-grade fusion of rule-based safety + 34-feature ML stress classifier.
 
@@ -16,7 +12,6 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime, timedelta
 
-<<<<<<< HEAD
 try:
     import joblib
     HAS_JOBLIB = True
@@ -27,9 +22,6 @@ except ImportError:
 def _project_root() -> Path:
     """Project root (directory containing app.py). Resolves from this file in src/."""
     return Path(__file__).resolve().parent.parent
-
-=======
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 from src.models import (
     UserProfile, HRV_CRITICAL_MS, HRV_WARNING_MS, HRV_HIGH_MS,
     HR_CRITICAL_PCT, HR_WARNING_PCT
@@ -57,11 +49,7 @@ class CardiacAlert:
 class CardiacIntelligence:
     """Production-grade cardiac monitoring with ML stress prediction."""
     
-<<<<<<< HEAD
     def __init__(self, profile: UserProfile, model_path: str = "stress_prediction_model.pkl"):
-=======
-    def __init__(self, profile: UserProfile, model_path: str = "hrv_stress_model.pkl"):
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         self.profile = profile
         self.model_bundle = self._safe_load_model(model_path)
         self.history: List[Dict] = []  # 24h rolling history
@@ -69,7 +57,6 @@ class CardiacIntelligence:
         self.last_alert = datetime.min
     
     def _safe_load_model(self, path: str) -> Optional[Dict]:
-<<<<<<< HEAD
         """Load ML model with zero-downtime fallback. Resolves path from project root."""
         try:
             p = Path(path)
@@ -96,18 +83,6 @@ class CardiacIntelligence:
             if not bundle.get("feature_names") and not bundle.get("feature_columns"):
                 return None
             return bundle
-=======
-        """Load ML model with zero-downtime fallback."""
-        try:
-            p = Path(path)
-            if not p.exists():
-                return None
-            with open(p, "rb") as f:
-                bundle = pickle.load(f)
-            required = {"model", "scaler", "label_encoder", "feature_names"}
-            if required.issubset(bundle.keys()) and bundle["feature_names"]:
-                return bundle
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         except Exception:
             pass
         return None
@@ -201,11 +176,7 @@ class CardiacIntelligence:
             features = self._hrv_to_features(rmssd, mean_rr, self.history[-1]['hr'], sdnn)
             pred = self._predict_stress_internal(features, self.model_bundle)
             
-<<<<<<< HEAD
             if pred['condition'].lower() in ['high_stress', 'stressed', 'time pressure', 'time_pressure'] and pred['confidence'] > 75:
-=======
-            if pred['condition'].lower() in ['high_stress', 'stressed'] and pred['confidence'] > 75:
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                 return CardiacAlert(
                     AlertLevel.STRESS_HIGH,
                     f"🧠 AI STRESS DETECTED: {pred['condition']} ({pred['confidence']:.0f}%)",
@@ -224,15 +195,9 @@ class CardiacIntelligence:
         try:
             model = bundle.get("model")
             scaler = bundle.get("scaler")
-<<<<<<< HEAD
             feature_names = bundle.get("feature_names") or bundle.get("feature_columns", [])
             
             if model is None or scaler is None or not feature_names:
-=======
-            feature_names = bundle.get("feature_names", [])
-            
-            if model is None or scaler is None:
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
                 return {"condition": "unknown", "confidence": 0}
             
             # Ensure features match expected format
@@ -241,7 +206,6 @@ class CardiacIntelligence:
             
             prediction = model.predict(X_scaled)[0]
             
-<<<<<<< HEAD
             # Get confidence and per-class probabilities
             if hasattr(model, 'predict_proba'):
                 probs = model.predict_proba(X_scaled)[0]
@@ -265,21 +229,6 @@ class CardiacIntelligence:
             }
         except Exception:
             return {"condition": "unknown", "confidence": 0, "probabilities": {}}
-=======
-            # Get confidence if available
-            if hasattr(model, 'predict_proba'):
-                probs = model.predict_proba(X_scaled)[0]
-                confidence = max(probs) * 100
-            else:
-                confidence = 75.0  # Default confidence
-            
-            return {
-                "condition": str(prediction),
-                "confidence": confidence
-            }
-        except Exception:
-            return {"condition": "unknown", "confidence": 0}
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
     
     def _trend_analysis(self) -> CardiacAlert:
         """6-reading trend deterioration (fatigue precursor)."""
@@ -384,11 +333,7 @@ def check_safety_boundaries(hr: float, hrv: float, profile: UserProfile) -> Card
 def predict_stress(hrv_features: Dict[str, float], model_bundle: Optional[Dict] = None) -> Dict:
     """Legacy ML-only API."""
     if model_bundle is None:
-<<<<<<< HEAD
         bundle = CardiacIntelligence(None)._safe_load_model("stress_prediction_model.pkl")
-=======
-        bundle = CardiacIntelligence(None)._safe_load_model("hrv_stress_model.pkl")
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         if not bundle:
             return {"error": "Model unavailable"}
     else:
@@ -412,7 +357,6 @@ def predict_stress(hrv_features: Dict[str, float], model_bundle: Optional[Dict] 
         
         prediction = model.predict(X_scaled)[0]
         
-<<<<<<< HEAD
         # Get confidence and per-class probabilities
         if hasattr(model, 'predict_proba'):
             probs = model.predict_proba(X_scaled)[0]
@@ -433,18 +377,6 @@ def predict_stress(hrv_features: Dict[str, float], model_bundle: Optional[Dict] 
             "condition": str(prediction),
             "confidence": confidence,
             "probabilities": probabilities
-=======
-        # Get confidence if available
-        if hasattr(model, 'predict_proba'):
-            probs = model.predict_proba(X_scaled)[0]
-            confidence = max(probs) * 100
-        else:
-            confidence = 75.0  # Default confidence
-        
-        return {
-            "condition": str(prediction),
-            "confidence": confidence
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         }
     except Exception as e:
         return {"error": str(e)}
@@ -463,7 +395,6 @@ def format_alert_badge(alert: CardiacAlert) -> str:
 
 
 # ── Streamlit App Compatibility ──────────────────────────────────────────────
-<<<<<<< HEAD
 def _resolve_model_path(path: str) -> Path:
     """Resolve model path: absolute as-is; relative tried in project root then cwd."""
     p = Path(path)
@@ -481,11 +412,6 @@ def load_model(path: str = "stress_prediction_model.pkl") -> Optional[Dict]:
     """
     Load the trained HRV stress model bundle from disk.
     Relative paths are looked up in: project root (folder containing app.py), then cwd.
-=======
-def load_model(path: str = "hrv_stress_model.pkl") -> Optional[Dict]:
-    """
-    Load the trained HRV stress model bundle from disk.
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
 
     `app.py` expects this symbol to exist as:
         from src.stress_predictor import load_model
@@ -493,7 +419,6 @@ def load_model(path: str = "hrv_stress_model.pkl") -> Optional[Dict]:
     The bundle is a dict containing:
       - model
       - scaler
-<<<<<<< HEAD
       - label_encoder (optional; used for class names in probabilities)
       - feature_names
     """
@@ -513,28 +438,12 @@ def load_model(path: str = "hrv_stress_model.pkl") -> Optional[Dict]:
             with open(p, "rb") as f:
                 bundle = pickle.load(f)
                 
-=======
-      - label_encoder (optional for inference in this app)
-      - feature_names
-    """
-    try:
-        p = Path(path)
-        if not p.exists():
-            raise FileNotFoundError(str(p))
-        with open(p, "rb") as f:
-            bundle = pickle.load(f)
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         if not isinstance(bundle, dict):
             raise ValueError("Model bundle must be a dict")
         if "model" not in bundle or "scaler" not in bundle:
             raise ValueError("Model bundle missing required keys: model/scaler")
-<<<<<<< HEAD
         if not bundle.get("feature_names") and not bundle.get("feature_columns"):
             raise ValueError("Model bundle missing feature_names or feature_columns")
-=======
-        if not bundle.get("feature_names"):
-            raise ValueError("Model bundle missing feature_names")
->>>>>>> 05adc39bba754c5158ab0f4dada08bb46ab65556
         return bundle
     except FileNotFoundError:
         raise
