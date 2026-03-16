@@ -64,5 +64,6 @@ Notes:
 ## 👥 Team
 
 - **Lead Developer:** Bezaleel Paul N.
+- **Researchers:** Madhusudhana S and Aditya S
 - **University:** CMR University, Bangalore
 - **Hackathon:** NadiCare Submission
