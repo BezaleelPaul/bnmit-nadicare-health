@@ -201,7 +201,7 @@ class CardiacIntelligence:
                 return {"condition": "unknown", "confidence": 0}
             
             # Ensure features match expected format
-            X = np.array([[hrv_features.get(f, 0) for f in feature_names]])
+            X = pd.DataFrame([[hrv_features.get(f, 0.0) for f in feature_names]], columns=feature_names)
             X_scaled = scaler.transform(X)
             
             prediction = model.predict(X_scaled)[0]

@@ -24,6 +24,10 @@ build/
 eggs/
 .eggs/
 
+# Datasets
+data/
+*.csv
+
 # Jupyter Notebooks
 .ipynb_checkpoints
 
