@@ -83,14 +83,41 @@ class CardiacMonitor:
     ) -> CardiacAlert:
         """Comprehensive safety + stress check with history awareness."""
         
-        # 🆕 Input sanitization
+        # Reject invalid measurements instead of silently clamping them.
+        # Clamping can turn sensor faults into plausible-looking readings.
+        numeric_values = {
+            "hr": hr,
+            "hrv_rmssd": hrv_rmssd,
+            "mean_rr": mean_rr,
+            "sdnn": sdnn,
+            "temperature": temperature,
+        }
+        for field, value in numeric_values.items():
+            if value is None:
+                continue
+            try:
+                finite = math.isfinite(float(value))
+            except (TypeError, ValueError):
+                finite = False
+            if not finite:
+                raise ValueError(f"{field} must be a finite number")
+
+        if not 20 <= float(hr) <= 250:
+            raise ValueError("hr must be between 20 and 250 BPM")
+        if not 0 <= float(hrv_rmssd) <= 200:
+            raise ValueError("hrv_rmssd must be between 0 and 200 ms")
+        if mean_rr is not None and float(mean_rr) <= 0:
+            raise ValueError("mean_rr must be greater than 0")
+        if sdnn is not None and float(sdnn) <= 0:
+            raise ValueError("sdnn must be greater than 0")
+
         reading = {
             'timestamp': datetime.now(),
-            'hr': max(30, min(hr, 220)),
-            'hrv_rmssd': max(0, hrv_rmssd),
-            'mean_rr': mean_rr,
-            'sdnn': sdnn or hrv_rmssd,  # Fallback
-            'temp': temperature,
+            'hr': float(hr),
+            'hrv_rmssd': float(hrv_rmssd),
+            'mean_rr': float(mean_rr) if mean_rr is not None else None,
+            'sdnn': float(sdnn) if sdnn is not None else float(hrv_rmssd),
+            'temp': float(temperature) if temperature is not None else None,
         }
         self.readings.append(reading)
         self._prune_history(48)  # Keep 48 hours
