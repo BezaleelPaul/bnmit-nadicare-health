@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 
 from src.models import UserProfile
 from src.analytics import cardiac_enhancement_score
-from src.safety_monitor import check_safety_boundaries, AlertLevel
+from src.safety_monitor import check_safety_boundaries, CardiacMonitor, AlertLevel
 from data_gen import generate_24h_demo
 
 
@@ -99,3 +99,46 @@ def test_safety_monitor_hrv_thresholds():
     alert_critical = check_safety_boundaries(hr=profile.baseline_hr + 5, hrv=15, profile=profile)
     assert alert_critical.level == AlertLevel.CRITICAL
 
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"hr": float("nan"), "hrv_rmssd": 50},
+        {"hr": float("inf"), "hrv_rmssd": 50},
+        {"hr": 19, "hrv_rmssd": 50},
+        {"hr": 70, "hrv_rmssd": 201},
+        {"hr": 70, "hrv_rmssd": 50, "mean_rr": 0},
+        {"hr": 70, "hrv_rmssd": 50, "sdnn": float("nan")},
+    ],
+)
+def test_monitor_rejects_invalid_sensor_values(kwargs):
+    """Invalid or out-of-range measurements must not be silently clamped."""
+    profile = UserProfile(
+        name="Test",
+        age=30,
+        weight_kg=70,
+        baseline_hr=60,
+        baseline_hrv=60,
+    )
+    monitor = CardiacMonitor(profile)
+
+    with pytest.raises(ValueError):
+        monitor.check_all(**kwargs)
+
+
+def test_monitor_accepts_valid_sensor_values():
+    """A valid measurement should still produce a structured alert."""
+    profile = UserProfile(
+        name="Test",
+        age=30,
+        weight_kg=70,
+        baseline_hr=60,
+        baseline_hrv=60,
+    )
+    monitor = CardiacMonitor(profile)
+
+    alert = monitor.check_all(hr=70, hrv_rmssd=55, mean_rr=857, sdnn=60)
+
+    assert alert.level in {AlertLevel.SAFE, AlertLevel.WARNING, AlertLevel.CRITICAL}
+    assert monitor.readings[-1]["hr"] == 70.0
