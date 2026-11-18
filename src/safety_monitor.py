@@ -115,9 +115,9 @@ class CardiacMonitor:
             'timestamp': datetime.now(),
             'hr': float(hr),
             'hrv_rmssd': float(hrv_rmssd),
-            'mean_rr': mean_rr,
-            'sdnn': sdnn if sdnn is not None else hrv_rmssd,
-            'temp': temperature,
+            'mean_rr': float(mean_rr) if mean_rr is not None else None,
+            'sdnn': float(sdnn) if sdnn is not None else float(hrv_rmssd),
+            'temp': float(temperature) if temperature is not None else None,
         }
         self.readings.append(reading)
         self._prune_history(48)  # Keep 48 hours
