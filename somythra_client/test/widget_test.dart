@@ -4,6 +4,8 @@ import 'package:somythra_client/theme/somythra_theme.dart';
 import 'package:somythra_client/widgets/metric_card.dart';
 import 'package:somythra_client/widgets/alert_banner.dart';
 import 'package:somythra_client/screens/about_screen.dart';
+import 'package:somythra_client/screens/vision_stream_screen.dart';
+import 'package:somythra_client/models/user_profile.dart';
 
 void main() {
   testWidgets('MetricCard and AlertBanner test', (WidgetTester tester) async {
@@ -51,5 +53,29 @@ void main() {
     expect(find.text('SOMYTHRA Twin'), findsOneWidget);
     expect(find.text('SOMYTHRA Field'), findsOneWidget);
     expect(find.text('SOMYTHRA Research'), findsOneWidget);
+  });
+
+  testWidgets('VisionStreamScreen test', (WidgetTester tester) async {
+    final profile = UserProfile(
+      name: 'Tester',
+      age: 25,
+      weightKg: 70.0,
+      baselineHr: 65.0,
+      baselineHrv: 55.0,
+      fitnessLevel: 'intermediate',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: SomythraTheme.darkTheme,
+        home: Scaffold(
+          body: VisionStreamScreen(profile: profile),
+        ),
+      ),
+    );
+
+    expect(find.text('CAMERA rPPG PULSE SCAN'), findsOneWidget);
+    expect(find.text('START LIVE SCAN'), findsOneWidget);
+    expect(find.text('POSITION FACE WITHIN SCANNER GUIDE'), findsOneWidget);
   });
 }

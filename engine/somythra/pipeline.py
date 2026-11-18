@@ -116,6 +116,9 @@ class RPPGPipeline:
                 raise RuntimeError(f"Could not open video file: {video_path}")
             return self.process_frame_stream(stream, measured_fps=stream.fps)
 
+    # Alias for convenience
+    process_video = process_video_file
+
     def process_frame_stream(
         self,
         frame_iterator: Iterator[Tuple[np.ndarray, float]],

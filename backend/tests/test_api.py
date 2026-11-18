@@ -149,3 +149,21 @@ def test_vision_websocket_stream():
         assert "frame_index" in packet
         assert packet["frame_index"] == 1
         assert "pulse_sample" in packet
+
+def test_multimodal_fuse_endpoint():
+    payload = {
+        "timestamp": 10.5,
+        "rgb_pulse": 0.22,
+        "rgb_hr": 78.0,
+        "rgb_confidence": 0.95,
+        "nir_value": 160.0,
+        "thermal_nasal_temp": 32.5,
+        "thermal_forehead_temp": 34.8,
+    }
+    res = client.post("/api/v1/multimodal/fuse", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert "casi_stress_score" in data
+    assert "autonomic_dominance" in data
+    assert "modality_confidence" in data
+    assert data["casi_stress_score"] > 0.0

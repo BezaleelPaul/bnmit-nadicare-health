@@ -65,29 +65,35 @@ class MetricCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  color: SomythraTheme.textPrimary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: 'monospace',
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: SomythraTheme.textPrimary,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'monospace',
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                unit,
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+                if (unit.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    unit,
+                    style: TextStyle(
+                      color: accentColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 8),

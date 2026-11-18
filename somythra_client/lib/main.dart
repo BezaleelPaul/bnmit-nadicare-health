@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/user_profile.dart';
 import 'theme/somythra_theme.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/vision_stream_screen.dart';
 import 'screens/twin_simulation_screen.dart';
 import 'screens/strain_analytics_screen.dart';
 import 'screens/about_screen.dart';
@@ -47,6 +48,7 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
   Widget build(BuildContext context) {
     final screens = [
       DashboardScreen(profile: _profile),
+      VisionStreamScreen(profile: _profile),
       TwinSimulationScreen(profile: _profile),
       StrainAnalyticsScreen(profile: _profile),
       const AboutScreen(),
@@ -118,6 +120,11 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
                       label: Text('Monitor'),
                     ),
                     NavigationRailDestination(
+                      icon: Icon(Icons.videocam_outlined),
+                      selectedIcon: Icon(Icons.videocam_rounded),
+                      label: Text('Vision Scan'),
+                    ),
+                    NavigationRailDestination(
                       icon: Icon(Icons.device_hub_outlined),
                       selectedIcon: Icon(Icons.device_hub_rounded),
                       label: Text('Twin'),
@@ -160,6 +167,11 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
                   icon: Icon(Icons.monitor_heart_outlined),
                   activeIcon: Icon(Icons.monitor_heart_rounded),
                   label: 'Monitor',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.videocam_outlined),
+                  activeIcon: Icon(Icons.videocam_rounded),
+                  label: 'Vision Scan',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.device_hub_outlined),

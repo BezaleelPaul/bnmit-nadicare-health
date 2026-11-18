@@ -130,3 +130,20 @@ class StressPredictResponse(BaseModel):
     confidence: float
     stress_index: float
     autonomic_state: str
+
+class MultimodalFuseRequest(BaseModel):
+    timestamp: float = Field(default=0.0)
+    rgb_pulse: float = Field(default=0.0, description="Instantaneous RGB rPPG pulse sample")
+    rgb_hr: Optional[float] = Field(default=None, description="Current camera estimated HR in BPM")
+    rgb_confidence: float = Field(default=0.9, ge=0.0, le=1.0)
+    nir_value: Optional[float] = Field(default=None, description="Near-Infrared optical absorption")
+    thermal_nasal_temp: Optional[float] = Field(default=None, description="Nasal temperature in Celsius")
+    thermal_forehead_temp: Optional[float] = Field(default=None, description="Forehead temp in Celsius")
+
+class MultimodalFuseResponse(BaseModel):
+    timestamp: float
+    casi_stress_score: float
+    autonomic_dominance: str
+    nasal_respiration_bpm: Optional[float] = None
+    periorbital_temp_c: Optional[float] = None
+    modality_confidence: dict[str, float]

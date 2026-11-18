@@ -43,12 +43,14 @@ class HaarCascadeFaceDetector(BaseFaceDetector):
         min_size: tuple[int, int] = (60, 60),
         smoothing_factor: float = 0.7,
         max_missing_frames: int = 4,
+        detection_scale: float = 0.5,
     ):
         self.scale_factor = scale_factor
         self.min_neighbors = min_neighbors
         self.min_size = min_size
         self.smoothing_factor = smoothing_factor
         self.max_missing_frames = max_missing_frames
+        self.detection_scale = max(0.2, min(1.0, detection_scale))
 
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         self._cascade = cv2.CascadeClassifier(cascade_path)
@@ -71,15 +73,30 @@ class HaarCascadeFaceDetector(BaseFaceDetector):
         # Equalize histogram to improve contrast in variable lighting
         gray = cv2.equalizeHist(gray)
 
-        faces = self._cascade.detectMultiScale(
-            gray,
+        # Downsample for 4-8x faster Haar feature computation
+        if self.detection_scale < 1.0:
+            scale_inv = 1.0 / self.detection_scale
+            search_gray = cv2.resize(
+                gray, (0, 0), fx=self.detection_scale, fy=self.detection_scale, interpolation=cv2.INTER_LINEAR
+            )
+            scaled_min_size = (
+                max(20, int(self.min_size[0] * self.detection_scale)),
+                max(20, int(self.min_size[1] * self.detection_scale)),
+            )
+        else:
+            scale_inv = 1.0
+            search_gray = gray
+            scaled_min_size = self.min_size
+
+        raw_faces = self._cascade.detectMultiScale(
+            search_gray,
             scaleFactor=self.scale_factor,
             minNeighbors=self.min_neighbors,
-            minSize=self.min_size,
+            minSize=scaled_min_size,
             flags=cv2.CASCADE_SCALE_IMAGE,
         )
 
-        if len(faces) == 0:
+        if len(raw_faces) == 0:
             self._missing_count += 1
             if self._prev_bbox is not None and self._missing_count <= self.max_missing_frames:
                 # Coast using last known position during momentary blink or occlusion
@@ -90,8 +107,11 @@ class HaarCascadeFaceDetector(BaseFaceDetector):
         self._missing_count = 0
 
         # Choose the largest detected face (closest to camera)
-        best_face = max(faces, key=lambda f: f[2] * f[3])
-        x, y, w, h = (int(best_face[0]), int(best_face[1]), int(best_face[2]), int(best_face[3]))
+        best_face = max(raw_faces, key=lambda f: f[2] * f[3])
+        x = int(best_face[0] * scale_inv)
+        y = int(best_face[1] * scale_inv)
+        w = int(best_face[2] * scale_inv)
+        h = int(best_face[3] * scale_inv)
 
         # Constrain to frame boundaries
         img_h, img_w = frame_bgr.shape[:2]

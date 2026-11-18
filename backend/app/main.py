@@ -19,6 +19,8 @@ from app.models.schemas import (
     SafetyCheckResponse,
     StressPredictRequest,
     StressPredictResponse,
+    MultimodalFuseRequest,
+    MultimodalFuseResponse,
     TelemetryReading,
 )
 from app.engine.twin import SomythraTwinEngine
@@ -119,6 +121,48 @@ async def analyze_frame(file: UploadFile = File(...)):
         return SomythraVisionService.process_frame_bytes(content, streamer)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.post(f"{settings.API_V1_STR}/multimodal/fuse", response_model=MultimodalFuseResponse)
+async def fuse_multimodal(req: MultimodalFuseRequest):
+    """
+    Fuse multimodal physiological inputs (RGB rPPG, Near-Infrared absorption, and LWIR Thermal dynamics).
+    Calculates Composite Autonomic Strain Index (CASI: 0 - 100) and autonomic balance.
+    """
+    import numpy as np
+    from somythra.multimodal.schemas import NIRFrame, ThermalFrame
+    from somythra.multimodal.fusion import MultimodalFusionEngine
+
+    engine = MultimodalFusionEngine()
+
+    nir_frame = None
+    if req.nir_value is not None:
+        nir_arr = np.full((10, 10), req.nir_value, dtype=np.uint8)
+        nir_frame = NIRFrame(timestamp=req.timestamp, wavelength_nm=850, data=nir_arr)
+
+    thermal_frame = None
+    if req.thermal_forehead_temp is not None or req.thermal_nasal_temp is not None:
+        mat = np.full((40, 40), req.thermal_forehead_temp or 34.0, dtype=np.float32)
+        if req.thermal_nasal_temp is not None:
+            mat[20:30, 15:25] = req.thermal_nasal_temp
+        thermal_frame = ThermalFrame(timestamp=req.timestamp, temperature_matrix_c=mat)
+
+    fused = engine.fuse_step(
+        timestamp=req.timestamp,
+        rgb_pulse=req.rgb_pulse,
+        rgb_hr=req.rgb_hr,
+        rgb_confidence=req.rgb_confidence,
+        nir_frame=nir_frame,
+        thermal_frame=thermal_frame,
+    )
+
+    return MultimodalFuseResponse(
+        timestamp=fused.timestamp,
+        casi_stress_score=fused.casi_stress_score,
+        autonomic_dominance=fused.autonomic_dominance,
+        nasal_respiration_bpm=fused.nasal_respiration_bpm,
+        periorbital_temp_c=fused.periorbital_temp_c,
+        modality_confidence=fused.modality_confidence,
+    )
 
 @app.websocket("/ws/vision/live")
 async def websocket_vision_live(websocket: WebSocket):
