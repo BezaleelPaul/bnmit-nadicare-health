@@ -150,3 +150,31 @@ class SkinROIExtractor:
             return True, float(mean_vals[0]), float(mean_vals[1]), float(mean_vals[2]), total_pixels
 
         return False, 0.0, 0.0, 0.0, 0
+
+    def extract_ambient_rgb(
+        self, frame_bgr: np.ndarray, face_box: Optional[BoundingBox]
+    ) -> Tuple[bool, float, float, float]:
+        """
+        Extract ambient background illumination from non-face margins.
+        Used to cancel common-mode camera auto-exposure (AE) and white-balance (AWB) shifts.
+        Returns:
+            (is_valid, mean_r, mean_g, mean_b)
+        """
+        if frame_bgr is None or frame_bgr.size == 0:
+            return False, 128.0, 128.0, 128.0
+
+        img_h, img_w = frame_bgr.shape[:2]
+        strip_h = max(10, int(img_h * 0.10))
+        strip_w = max(10, int(img_w * 0.20))
+
+        if face_box is not None and face_box.is_valid() and face_box.x < strip_w and face_box.y < strip_h:
+            patch = frame_bgr[0:strip_h, img_w - strip_w : img_w]
+        else:
+            patch = frame_bgr[0:strip_h, 0:strip_w]
+
+        if patch.size == 0:
+            return False, 128.0, 128.0, 128.0
+
+        rgb_patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
+        mean_vals = cv2.mean(rgb_patch)[:3]
+        return True, float(mean_vals[0]), float(mean_vals[1]), float(mean_vals[2])

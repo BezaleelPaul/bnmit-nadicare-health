@@ -22,6 +22,9 @@ class CameraConfig:
     target_height: int = 480
     target_fps: float = 30.0
     buffer_size: int = 1
+    lock_exposure: bool = False
+    exposure_value: Optional[float] = None
+    lock_white_balance: bool = False
 
 
 class CameraCapture:
@@ -77,6 +80,24 @@ class CameraCapture:
             self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.target_height)
             self._cap.set(cv2.CAP_PROP_FPS, self.config.target_fps)
             self._cap.set(cv2.CAP_PROP_BUFFERSIZE, self.config.buffer_size)
+
+            # Hardware-level Auto-Exposure (AE) and Auto-White-Balance (AWB) locking
+            if self.config.lock_exposure:
+                try:
+                    # 0.25 (or 1) sets manual mode on V4L2/UVC webcam backends
+                    self._cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+                    if self.config.exposure_value is not None:
+                        self._cap.set(cv2.CAP_PROP_EXPOSURE, self.config.exposure_value)
+                    logger.info("Applied hardware exposure lock.")
+                except Exception as ex:
+                    logger.warning("Could not set hardware exposure lock: %s", ex)
+
+            if self.config.lock_white_balance:
+                try:
+                    self._cap.set(cv2.CAP_PROP_AUTO_WB_TEMPERATURE, 0)
+                    logger.info("Applied hardware white-balance lock.")
+                except Exception as ex:
+                    logger.warning("Could not set hardware white-balance lock: %s", ex)
 
             self._start_time = time.perf_counter()
             self._last_timestamp = self._start_time

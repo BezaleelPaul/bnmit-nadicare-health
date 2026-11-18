@@ -177,3 +177,20 @@ class RPPGPipelineResult:
     dropped_frames: int = 0
     total_frames_processed: int = 0
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class LiveStreamPacket:
+    """Real-time telemetry packet emitted per frame by LiveRPPGStreamer."""
+    frame_index: int
+    timestamp: float
+    pulse_sample: float
+    bpm: Optional[float]
+    confidence: float
+    snr_db: float
+    quality_status: QualityStatus
+    is_cadence_update: bool
+    rejection_reason: Optional[str] = None
+    optical_features: Optional[Dict[str, float]] = None
+    face_detected: bool = True
+    face_box: Optional[BoundingBox] = None
