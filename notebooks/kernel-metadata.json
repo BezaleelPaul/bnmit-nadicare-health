@@ -1,0 +1,14 @@
+{
+  "id": "bezaleelpaul/somythra-optical-stress-training",
+  "title": "SOMYTHRA Optical Stress Training",
+  "code_file": "somythra_wesad_training.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "vladafed/wesad-engineered-wrist-features"
+  ]
+}
