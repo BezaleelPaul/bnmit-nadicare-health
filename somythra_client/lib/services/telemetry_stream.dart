@@ -14,6 +14,7 @@ class TelemetryStreamService {
   Timer? _reconnectTimer;
   Timer? _mockTimer;
   bool _isConnected = false;
+  bool _isDisposed = false;
   bool get isConnected => _isConnected;
 
   final Random _rng = Random();
@@ -25,63 +26,73 @@ class TelemetryStreamService {
   }
 
   void _connectWebSocket() {
+    if (_isDisposed) return;
     try {
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
       _channel!.stream.listen(
         (data) {
+          if (_isDisposed) return;
           if (!_isConnected) {
             _isConnected = true;
             _stopMockMode();
           }
           final decoded = jsonDecode(data as String) as Map<String, dynamic>;
-          _controller.add(TelemetryData.fromJson(decoded));
+          if (!_controller.isClosed) {
+            _controller.add(TelemetryData.fromJson(decoded));
+          }
         },
         onError: (err) {
-          _handleDisconnect();
+          if (!_isDisposed) _handleDisconnect();
         },
         onDone: () {
-          _handleDisconnect();
+          if (!_isDisposed) _handleDisconnect();
         },
       );
     } catch (_) {
-      _handleDisconnect();
+      if (!_isDisposed) _handleDisconnect();
     }
   }
 
   void _handleDisconnect() {
+    if (_isDisposed) return;
     _isConnected = false;
     _startMockMode();
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(const Duration(seconds: 4), () {
-      _connectWebSocket();
+      if (!_isDisposed) {
+        _connectWebSocket();
+      }
     });
   }
 
   void _startMockMode() {
+    if (_isDisposed) return;
     if (_mockTimer != null && _mockTimer!.isActive) return;
     _mockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_isConnected) return;
+      if (_isDisposed || _isConnected) return;
       _mockHr = (_mockHr + (_rng.nextDouble() * 4 - 2)).clamp(55.0, 130.0);
       _mockHrv = (_mockHrv + (_rng.nextDouble() * 6 - 3)).clamp(20.0, 95.0);
 
-      _controller.add(
-        TelemetryData(
-          timestamp: DateTime.now(),
-          hr: double.parse(_mockHr.toStringAsFixed(1)),
-          hrv: double.parse(_mockHrv.toStringAsFixed(1)),
-          meanRr: double.parse((60000.0 / _mockHr).toStringAsFixed(1)),
-          sdnn: double.parse((_mockHrv * 1.15).toStringAsFixed(1)),
-          activityLoad: 1.0,
-          cesScore: 78.5,
-          cesRating: 'Optimal Interconnected State (Local Mode)',
-          safetyLevel: _mockHr > 120 ? 'WARNING' : 'SAFE',
-          safetyMessage: _mockHr > 120
-              ? 'Elevated Cardiac Demand (Simulated)'
-              : 'Physiological vitals stable within baseline limits.',
-          stressLevel: _mockHrv < 30 ? 'High Autonomic Stress' : 'Balanced / Low Stress',
-          stressIndex: double.parse((50.0 * (70 / _mockHrv)).toStringAsFixed(1)),
-        ),
-      );
+      if (!_controller.isClosed && !_isDisposed) {
+        _controller.add(
+          TelemetryData(
+            timestamp: DateTime.now(),
+            hr: double.parse(_mockHr.toStringAsFixed(1)),
+            hrv: double.parse(_mockHrv.toStringAsFixed(1)),
+            meanRr: double.parse((60000.0 / _mockHr).toStringAsFixed(1)),
+            sdnn: double.parse((_mockHrv * 1.15).toStringAsFixed(1)),
+            activityLoad: 1.0,
+            cesScore: 78.5,
+            cesRating: 'Optimal Interconnected State (Local Mode)',
+            safetyLevel: _mockHr > 120 ? 'WARNING' : 'SAFE',
+            safetyMessage: _mockHr > 120
+                ? 'Elevated Cardiac Demand (Simulated)'
+                : 'Physiological vitals stable within baseline limits.',
+            stressLevel: _mockHrv < 30 ? 'High Autonomic Stress' : 'Balanced / Low Stress',
+            stressIndex: double.parse((50.0 * (70 / _mockHrv)).toStringAsFixed(1)),
+          ),
+        );
+      }
     });
   }
 
@@ -91,8 +102,11 @@ class TelemetryStreamService {
   }
 
   void dispose() {
+    _isDisposed = true;
     _reconnectTimer?.cancel();
     _mockTimer?.cancel();
+    _reconnectTimer = null;
+    _mockTimer = null;
     _channel?.sink.close();
     _controller.close();
   }

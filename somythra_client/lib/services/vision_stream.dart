@@ -25,7 +25,9 @@ class VisionStreamService {
         (data) {
           _isConnected = true;
           final decoded = jsonDecode(data as String) as Map<String, dynamic>;
-          _controller.add(VisionPacket.fromJson(decoded));
+          if (!_controller.isClosed) {
+            _controller.add(VisionPacket.fromJson(decoded));
+          }
         },
         onError: (_) {
           _isConnected = false;

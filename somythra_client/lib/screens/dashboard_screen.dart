@@ -8,6 +8,7 @@ import '../widgets/metric_card.dart';
 import '../widgets/alert_banner.dart';
 import '../widgets/live_pulse_chart.dart';
 import '../widgets/ces_gauge.dart';
+import '../widgets/autonomic_nexus.dart';
 
 class DashboardScreen extends StatefulWidget {
   final UserProfile profile;
@@ -23,7 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   TelemetryData? _latest;
   final List<double> _hrHistory = [];
-  final int _maxHistory = 35;
+  final int _maxHistory = 40;
 
   @override
   void initState() {
@@ -61,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           meanRr: 833.0,
           sdnn: 61.0,
           activityLoad: 1.0,
-          cesScore: 78.0,
+          cesScore: 78.5,
           cesRating: 'Optimal Interconnected State',
           safetyLevel: 'SAFE',
           safetyMessage: 'Physiological vitals stable within baseline limits.',
@@ -72,87 +73,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isLiveWs = _streamService.isConnected;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header + Connection Badge
+          // Command Bar / Status Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        'SOMYTHRA CORE',
-                        style: TextStyle(
-                          color: SomythraTheme.textPrimary,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: (isLiveWs
-                                  ? SomythraTheme.safeGreen
-                                  : SomythraTheme.warningOrange)
-                              .withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: isLiveWs
-                                ? SomythraTheme.safeGreen
-                                : SomythraTheme.warningOrange,
-                          ),
-                        ),
-                        child: Text(
-                          isLiveWs ? 'API CONNECTED' : 'SIMULATED FEED',
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text(
+                          'SOMYTHRA CORE',
                           style: TextStyle(
-                            color: isLiveWs
-                                ? SomythraTheme.safeGreen
-                                : SomythraTheme.warningOrange,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                            color: SomythraTheme.textPrimary,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Real-time physiological telemetry and autonomic monitoring',
-                    style: TextStyle(
-                      color: SomythraTheme.textSecondary,
-                      fontSize: 13,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: (isLiveWs
+                                    ? SomythraTheme.safeGreen
+                                    : SomythraTheme.warningOrange)
+                                .withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isLiveWs
+                                  ? SomythraTheme.safeGreen
+                                  : SomythraTheme.warningOrange,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: isLiveWs
+                                      ? SomythraTheme.safeGreen
+                                      : SomythraTheme.warningOrange,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isLiveWs ? 'TELEMETRY LIVE' : 'SYNTHETIC STREAM',
+                                style: TextStyle(
+                                  color: isLiveWs
+                                      ? SomythraTheme.safeGreen
+                                      : SomythraTheme.warningOrange,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.8,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 3),
+                    const Text(
+                      'Real-time physiological telemetry, autonomic modulation & Tanaka safety validation',
+                      style: TextStyle(
+                        color: SomythraTheme.textSecondary,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
               // User Profile Pill
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: SomythraTheme.card,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: SomythraTheme.cardBorder),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.person_rounded,
-                        color: SomythraTheme.primaryCyan, size: 16),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: SomythraTheme.primaryCyan,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Text(
-                      '${widget.profile.name} (${widget.profile.age}y)',
+                      '${widget.profile.name} • ${widget.profile.age}y',
                       style: const TextStyle(
                         color: SomythraTheme.textPrimary,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -160,21 +189,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
 
-          // Tanaka Safety Alert Banner
+          // Tanaka Physiological Safety Alert Banner
           AlertBanner(
             level: telemetry.safetyLevel,
             message: telemetry.safetyMessage,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          // Metric Cards Grid
+          // Hero Component: Autonomic Nexus
+          AutonomicNexusWidget(
+            telemetry: telemetry,
+            profile: widget.profile,
+          ),
+          const SizedBox(height: 20),
+
+          // 4-Card Metric Grid
           LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth > 900
+              final crossAxisCount = constraints.maxWidth > 920
                   ? 4
-                  : (constraints.maxWidth > 600 ? 2 : 1);
+                  : (constraints.maxWidth > 580 ? 2 : 1);
               final itemWidth =
                   (constraints.maxWidth - ((crossAxisCount - 1) * 16)) /
                       crossAxisCount;
@@ -236,12 +272,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          // Split Row: Live Pulse Waveform + CES Gauge
+          // Oscilloscope Waveform & CES Radial HUD Split
           LayoutBuilder(
             builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 800;
+              final isWide = constraints.maxWidth > 860;
               if (isWide) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,13 +288,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         values: _hrHistory.isNotEmpty
                             ? _hrHistory
                             : [68.0, 70.0, 71.0, 69.0, 72.0],
-                        label: 'Continuous Heart Rate Waveform (BPM)',
+                        label: 'Continuous Physiological Heart Rate Oscillogram',
                         minVal: 45.0,
                         maxVal: 150.0,
                         lineColor: SomythraTheme.heartRose,
                       ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 18),
                     Expanded(
                       flex: 4,
                       child: CesGauge(
@@ -275,12 +311,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       values: _hrHistory.isNotEmpty
                           ? _hrHistory
                           : [68.0, 70.0, 71.0, 69.0, 72.0],
-                      label: 'Continuous Heart Rate Waveform (BPM)',
+                      label: 'Continuous Physiological Heart Rate Oscillogram',
                       minVal: 45.0,
                       maxVal: 150.0,
                       lineColor: SomythraTheme.heartRose,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
                     CesGauge(
                       score: telemetry.cesScore,
                       rating: telemetry.cesRating,

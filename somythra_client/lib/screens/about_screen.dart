@@ -7,7 +7,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -15,19 +15,31 @@ class AboutScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
-                  SomythraTheme.card,
-                  SomythraTheme.surface,
+                  Color(0xFF14202E),
+                  Color(0xFF0C131B),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: SomythraTheme.primaryCyan.withOpacity(0.35),
+                color: SomythraTheme.primaryCyan.withOpacity(0.4),
                 width: 1.5,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.45),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: SomythraTheme.primaryCyan.withOpacity(0.08),
+                  blurRadius: 30,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,28 +51,29 @@ class AboutScreen extends StatelessWidget {
                       'SOMYTHRA',
                       style: TextStyle(
                         color: SomythraTheme.textPrimary,
-                        fontSize: 28,
+                        fontSize: 30,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0,
+                        letterSpacing: 2.5,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: SomythraTheme.primaryCyan.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: SomythraTheme.primaryCyan,
+                          color: SomythraTheme.primaryCyan.withOpacity(0.5),
                         ),
                       ),
                       child: const Text(
                         'SOMYTHRA-181126-001',
                         style: TextStyle(
                           color: SomythraTheme.primaryCyan,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
                           fontFamily: 'monospace',
+                          letterSpacing: 0.8,
                         ),
                       ),
                     ),
@@ -73,17 +86,19 @@ class AboutScreen extends StatelessWidget {
                     color: SomythraTheme.cyanGlow,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                      horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withOpacity(0.35),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: SomythraTheme.cardBorder,
+                      width: 1,
                     ),
                   ),
                   child: const Text(
@@ -91,23 +106,25 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(
                       color: SomythraTheme.textPrimary,
                       fontStyle: FontStyle.italic,
-                      fontSize: 14,
+                      fontSize: 13.5,
+                      letterSpacing: 0.4,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 26),
 
           // Etymology Section
           const Text(
             'INVENTED ETYMOLOGY',
             style: TextStyle(
               color: SomythraTheme.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.4,
+              fontFamily: 'monospace',
             ),
           ),
           const SizedBox(height: 12),
@@ -120,16 +137,17 @@ class AboutScreen extends StatelessWidget {
               _buildEtymologyCard('RA', 'Pattern Intelligence', 'Holistic understanding and synthesis of interconnected signals.'),
             ],
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 26),
 
           // Four Pillars Architecture
           const Text(
             'PRODUCT & RESEARCH ARCHITECTURE',
             style: TextStyle(
               color: SomythraTheme.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.4,
+              fontFamily: 'monospace',
             ),
           ),
           const SizedBox(height: 12),
@@ -160,15 +178,15 @@ class AboutScreen extends StatelessWidget {
             Icons.science_rounded,
             SomythraTheme.cyanGlow,
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 26),
 
           // Provenance Note
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: SomythraTheme.card,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: SomythraTheme.cardBorder),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
             ),
             child: const Text(
               'SOMYTHRA continues technical work originally developed under the prototype name NadiCare. '
@@ -177,7 +195,7 @@ class AboutScreen extends StatelessWidget {
               style: TextStyle(
                 color: SomythraTheme.textMuted,
                 fontSize: 12,
-                height: 1.5,
+                height: 1.6,
               ),
             ),
           ),
@@ -189,11 +207,18 @@ class AboutScreen extends StatelessWidget {
   Widget _buildEtymologyCard(String title, String subtitle, String desc) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: SomythraTheme.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: SomythraTheme.cardBorder),
+          border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,9 +227,10 @@ class AboutScreen extends StatelessWidget {
               title,
               style: const TextStyle(
                 color: SomythraTheme.primaryCyan,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.0,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+                fontFamily: 'monospace',
               ),
             ),
             const SizedBox(height: 4),
@@ -212,8 +238,8 @@ class AboutScreen extends StatelessWidget {
               subtitle,
               style: const TextStyle(
                 color: SomythraTheme.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -221,8 +247,8 @@ class AboutScreen extends StatelessWidget {
               desc,
               style: const TextStyle(
                 color: SomythraTheme.textSecondary,
-                fontSize: 11,
-                height: 1.4,
+                fontSize: 11.5,
+                height: 1.5,
               ),
             ),
           ],
@@ -234,11 +260,18 @@ class AboutScreen extends StatelessWidget {
   Widget _buildPillarItem(
       String title, String desc, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: SomythraTheme.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: SomythraTheme.cardBorder),
+        border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,10 +279,11 @@ class AboutScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withOpacity(0.14),
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: color.withOpacity(0.35)),
             ),
-            child: Icon(icon, color: color, size: 22),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -260,8 +294,8 @@ class AboutScreen extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     color: SomythraTheme.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -270,7 +304,7 @@ class AboutScreen extends StatelessWidget {
                   style: const TextStyle(
                     color: SomythraTheme.textSecondary,
                     fontSize: 12,
-                    height: 1.4,
+                    height: 1.5,
                   ),
                 ),
               ],

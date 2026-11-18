@@ -54,64 +54,125 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
     final autonomicState = _stressData?['autonomic_state'] ?? 'Homeostasis';
     final isStressed = stressLevel.contains('High');
 
+    // Sympathovagal ratio approximation (SNS vs PNS balance)
+    final snsRatio = ((_testHr / 120.0) * 0.5 + (1.0 - (_testHrv / 100.0).clamp(0.0, 1.0)) * 0.5).clamp(0.05, 0.95);
+    final pnsRatio = 1.0 - snsRatio;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'SOMYTHRA RESEARCH & STRAIN',
-            style: TextStyle(
-              color: SomythraTheme.textPrimary,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-            ),
+          // Header Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text(
+                          'SOMYTHRA RESEARCH & STRAIN',
+                          style: TextStyle(
+                            color: SomythraTheme.textPrimary,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: SomythraTheme.cyanGlow.withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: SomythraTheme.cyanGlow.withOpacity(0.4)),
+                          ),
+                          child: const Text(
+                            'AUTONOMIC NEURODYNAMICS',
+                            style: TextStyle(
+                              color: SomythraTheme.cyanGlow,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'Autonomic nervous system strain analysis, Baevsky stress index & HRV feature classification',
+                      style: TextStyle(
+                        color: SomythraTheme.textSecondary,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_loading) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: SomythraTheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: SomythraTheme.cardBorder),
+                  ),
+                  child: const Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: SomythraTheme.primaryCyan),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'ANALYZING',
+                        style: TextStyle(fontSize: 10, color: SomythraTheme.primaryCyan, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Autonomic nervous system strain analysis, Baevsky stress index & HRV feature classification',
-            style: TextStyle(
-              color: SomythraTheme.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // Interactive Testing Controls
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               color: SomythraTheme.card,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: SomythraTheme.cardBorder),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'OBSERVED VITAL INPUTS',
-                      style: TextStyle(
-                        color: SomythraTheme.textSecondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    if (_loading)
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: SomythraTheme.primaryCyan,
-                        ),
-                      ),
-                  ],
+                const Text(
+                  'OBSERVED VITAL INPUTS',
+                  style: TextStyle(
+                    color: SomythraTheme.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                    fontFamily: 'monospace',
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Expanded(
@@ -122,11 +183,24 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Observed Heart Rate',
-                                  style: TextStyle(color: SomythraTheme.textPrimary)),
-                              Text('${_testHr.toStringAsFixed(0)} BPM',
+                                  style: TextStyle(color: SomythraTheme.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: SomythraTheme.heartRose.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: SomythraTheme.heartRose.withOpacity(0.4)),
+                                ),
+                                child: Text(
+                                  '${_testHr.toStringAsFixed(0)} BPM',
                                   style: const TextStyle(
-                                      color: SomythraTheme.heartRose,
-                                      fontWeight: FontWeight.w700)),
+                                    color: SomythraTheme.heartRose,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'monospace',
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           Slider(
@@ -143,7 +217,7 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 30),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,11 +226,24 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Observed HRV (RMSSD)',
-                                  style: TextStyle(color: SomythraTheme.textPrimary)),
-                              Text('${_testHrv.toStringAsFixed(0)} ms',
+                                  style: TextStyle(color: SomythraTheme.textPrimary, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: SomythraTheme.primaryCyan.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: SomythraTheme.primaryCyan.withOpacity(0.4)),
+                                ),
+                                child: Text(
+                                  '${_testHrv.toStringAsFixed(0)} ms',
                                   style: const TextStyle(
-                                      color: SomythraTheme.primaryCyan,
-                                      fontWeight: FontWeight.w700)),
+                                    color: SomythraTheme.primaryCyan,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'monospace',
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           Slider(
@@ -178,7 +265,99 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+
+          // Sympathovagal Balance Visual Bar
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: SomythraTheme.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'SYMPATHOVAGAL EQUILIBRIUM (SNS vs PNS)',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.0,
+                        color: SomythraTheme.textSecondary,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    Text(
+                      'SNS: ${(snsRatio * 100).toStringAsFixed(0)}% • PNS: ${(pnsRatio * 100).toStringAsFixed(0)}%',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: SomythraTheme.primaryCyan,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: SizedBox(
+                    height: 12,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: (snsRatio * 100).round(),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [SomythraTheme.heartRose, SomythraTheme.warningOrange],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: (pnsRatio * 100).round(),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [SomythraTheme.cyanGlow, SomythraTheme.safeGreen],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '◄ Sympathetic Activation (SNS)',
+                        style: TextStyle(fontSize: 10, color: SomythraTheme.heartRose, fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        'Parasympathetic Tone (PNS) ►',
+                        style: TextStyle(fontSize: 10, color: SomythraTheme.safeGreen, fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.right,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
 
           // Diagnostic Output Cards
           Row(
@@ -210,43 +389,50 @@ class _StrainAnalyticsScreenState extends State<StrainAnalyticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // Informational Panel on SOMYTHRA Evidence Standards
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               color: SomythraTheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: SomythraTheme.cardBorder),
+              border: Border.all(color: SomythraTheme.cardBorder, width: 1.2),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.shield_outlined,
-                        color: SomythraTheme.primaryCyan, size: 20),
-                    SizedBox(width: 10),
-                    Text(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: SomythraTheme.primaryCyan.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.shield_outlined,
+                          color: SomythraTheme.primaryCyan, size: 18),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
                       'SOMYTHRA EVIDENCE & RESPONSIBLE USE PRINCIPLES',
                       style: TextStyle(
                         color: SomythraTheme.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 const Text(
                   '• Evidence Before Claims: Derived stress metrics represent estimated autonomic balance, not clinical diagnoses.\n'
                   '• Signal Quality First: Missing or noisy sensor readings are flagged and rejected rather than clamped.\n'
                   '• Non-punitive Field Context: Community and workplace metrics are designed strictly to support human wellbeing and prevent exhaustion.',
                   style: TextStyle(
                     color: SomythraTheme.textSecondary,
-                    fontSize: 13,
+                    fontSize: 12.5,
                     height: 1.6,
                   ),
                 ),

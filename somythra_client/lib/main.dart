@@ -56,13 +56,30 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 20,
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                color: SomythraTheme.primaryCyan.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [
+                    SomythraTheme.primaryCyan.withOpacity(0.25),
+                    SomythraTheme.cyanDim.withOpacity(0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: SomythraTheme.primaryCyan.withOpacity(0.5),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: SomythraTheme.primaryCyan.withOpacity(0.25),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                ],
               ),
               child: const Icon(
                 Icons.all_inclusive_rounded,
@@ -70,34 +87,84 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
                 size: 20,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             const Text(
               'SOMYTHRA',
               style: TextStyle(
                 fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                fontSize: 18,
+                letterSpacing: 2.2,
+                fontSize: 19,
+                color: SomythraTheme.textPrimary,
               ),
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'PHYSIOLOGICAL TWIN',
-              style: TextStyle(
-                color: SomythraTheme.textMuted,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.0,
-                fontSize: 11,
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: SomythraTheme.cardElevated,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: SomythraTheme.cardBorder),
+              ),
+              child: const Text(
+                'BIO-INTELLIGENCE',
+                style: TextStyle(
+                  color: SomythraTheme.cyanGlow,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.0,
+                  fontSize: 9.5,
+                  fontFamily: 'monospace',
+                ),
               ),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'User Physiological Profile',
-            icon: const Icon(Icons.tune_rounded, color: SomythraTheme.textSecondary),
-            onPressed: () => _showProfileDialog(context),
+          // Host daemon status indicator
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: SomythraTheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: SomythraTheme.cardBorder),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: SomythraTheme.safeGreen,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text(
+                  'ENGINE 127.0.0.1:8000',
+                  style: TextStyle(
+                    color: SomythraTheme.textSecondary,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 12),
+          IconButton(
+            tooltip: 'User Physiological Profile & Baselines',
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: SomythraTheme.card,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: SomythraTheme.cardBorder),
+              ),
+              child: const Icon(Icons.tune_rounded, color: SomythraTheme.primaryCyan, size: 18),
+            ),
+            onPressed: () => _showProfileDialog(context),
+          ),
+          const SizedBox(width: 16),
         ],
       ),
       body: LayoutBuilder(
@@ -205,12 +272,25 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
       builder: (ctx) => AlertDialog(
         backgroundColor: SomythraTheme.card,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: SomythraTheme.cardBorder),
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: SomythraTheme.cardBorder, width: 1.2),
         ),
-        title: const Text(
-          'Personal Baseline Settings',
-          style: TextStyle(color: SomythraTheme.textPrimary, fontWeight: FontWeight.w700),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: SomythraTheme.primaryCyan.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.tune_rounded, color: SomythraTheme.primaryCyan, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Personal Baseline Settings',
+              style: TextStyle(color: SomythraTheme.textPrimary, fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ],
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -218,22 +298,25 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
             children: [
               TextField(
                 controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: SomythraTheme.textSecondary)),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: ageCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Age (Years)'),
+                decoration: const InputDecoration(labelText: 'Age (Years)', labelStyle: TextStyle(color: SomythraTheme.textSecondary)),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: hrCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Resting Baseline HR (BPM)'),
+                decoration: const InputDecoration(labelText: 'Resting Baseline HR (BPM)', labelStyle: TextStyle(color: SomythraTheme.textSecondary)),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: hrvCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Resting Baseline HRV (ms)'),
+                decoration: const InputDecoration(labelText: 'Resting Baseline HRV (ms)', labelStyle: TextStyle(color: SomythraTheme.textSecondary)),
               ),
             ],
           ),
@@ -246,7 +329,8 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: SomythraTheme.primaryCyan,
-              foregroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () {
               setState(() {
@@ -261,7 +345,7 @@ class _SomythraMainShellState extends State<SomythraMainShell> {
               });
               Navigator.pop(ctx);
             },
-            child: const Text('Save Baseline'),
+            child: const Text('Save Baseline', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
