@@ -1,0 +1,62 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+# Environments & Packaging
+.env
+.venv
+env/
+venv/
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# IDEs & OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/workspace.xml
+.idea/shelf/
+.idea/libraries/
+.idea/runConfigurations/
+*.iml
+.vscode/
+
+# Media & Generated Research Artifacts
+*.mp4
+*.avi
+*.mov
+engine/*.png
+engine/sample_face_video.mp4
+
+# Flutter / Dart ephemeral & build artifacts
+.dart_tool/
+**/android/local.properties
+**/android/.gradle
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Flutter-Generated.xcconfig
+**/GeneratedPluginRegistrant.*
+**/flutter_export_environment.sh
+somythra_client/.idea/
+somythra_client/android/gradle/
+somythra_client/android/gradlew*

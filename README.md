@@ -51,6 +51,17 @@ SOMYTHRA is under active development. Features, sensors, models, performance fig
 
 Synthetic or simulated measurements must be clearly labelled and must never be presented as real-world physiological validation.
 
+### Active Milestones: SOMYTHRA Vision R001
+
+The repository currently includes **Milestone R001: Camera-Based Physiological Signal Processing Foundation** located in the [`engine/`](engine/README.md) directory.
+
+Key R001 capabilities:
+- **Modular rPPG Pipeline:** Camera/video ingestion $\to$ face detection $\to$ skin segmentation $\to$ temporal RGB extraction $\to$ detrending & filtering $\to$ POS & CHROM pulse extraction $\to$ heart rate estimation & quality gatekeeping.
+- **Hardware-Free Verification:** Deterministic optical hemodynamic simulation and synthetic face video generation tools enabling reproducible, automated verification without requiring physical hardware.
+- **Quality Gatekeeper:** Frequency-domain SNR and tracking validity checks reject corrupted or unstable signals with explicit reasons, preventing hallucinated or fabricated readings.
+- **Privacy by Design:** Local frame processing with zero requirement for storing or transmitting raw facial imagery.
+- **Documentation & Tests:** Full test suite and documentation available in [`engine/`](engine/README.md).
+
 ## Identity
 
 - **Project identity:** SOMYTHRA
