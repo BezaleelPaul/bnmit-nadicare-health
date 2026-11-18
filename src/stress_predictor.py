@@ -57,34 +57,33 @@ class CardiacIntelligence:
         self.last_alert = datetime.min
     
     def _safe_load_model(self, path: str) -> Optional[Dict]:
-        """Load ML model with zero-downtime fallback. Resolves path from project root."""
-        try:
-            p = Path(path)
-            if not p.is_absolute():
-                p = _project_root() / path
+        """Load ML model with zero-downtime fallback. Prioritizes optical PPG model when available."""
+        candidate_paths = [
+            _project_root() / "somythra_optical_stress_model.pkl",
+            Path("somythra_optical_stress_model.pkl"),
+            _project_root() / path,
+            Path(path),
+        ]
+        for p in candidate_paths:
             if not p.exists():
-                return None
-            
-            # Try joblib first (for models saved with joblib)
-            if HAS_JOBLIB:
-                try:
-                    bundle = joblib.load(str(p))
-                except Exception:
-                    # Fallback to pickle
+                continue
+            try:
+                # Try joblib first (for models saved with joblib)
+                if HAS_JOBLIB:
+                    try:
+                        bundle = joblib.load(str(p))
+                    except Exception:
+                        with open(p, "rb") as f:
+                            bundle = pickle.load(f)
+                else:
                     with open(p, "rb") as f:
                         bundle = pickle.load(f)
-            else:
-                with open(p, "rb") as f:
-                    bundle = pickle.load(f)
-            
-            # model + scaler + feature_names/feature_columns required; label_encoder optional
-            if not isinstance(bundle, dict) or "model" not in bundle or "scaler" not in bundle:
-                return None
-            if not bundle.get("feature_names") and not bundle.get("feature_columns"):
-                return None
-            return bundle
-        except Exception:
-            pass
+
+                if isinstance(bundle, dict) and "model" in bundle and "scaler" in bundle:
+                    if bundle.get("feature_names") or bundle.get("feature_columns"):
+                        return bundle
+            except Exception:
+                continue
         return None
     
     # 🎯 SINGLE PERFECT API
@@ -168,15 +167,27 @@ class CardiacIntelligence:
     
     def _ml_stress_check(self, rmssd: float, mean_rr: Optional[float], 
                         sdnn: float) -> Optional[CardiacAlert]:
-        """34-feature ML stress prediction (production validated)."""
-        if not mean_rr:
+        """ML stress prediction supporting both 4-feature optical PPG and 34-feature models."""
+        if not mean_rr or not self.model_bundle:
             return None
         
         try:
-            features = self._hrv_to_features(rmssd, mean_rr, self.history[-1]['hr'], sdnn)
+            feature_names = self.model_bundle.get("feature_names") or self.model_bundle.get("feature_columns", [])
+            hr = self.history[-1]['hr'] if self.history else 70.0
+
+            # 1. Optical PPG Model (4 features: mean_hr, rmssd, pnn50, lf_hf)
+            if set(feature_names) == {"mean_hr", "rmssd", "pnn50", "lf_hf"}:
+                pnn50 = float(np.clip((rmssd - 18.0) * 0.6, 0.0, 100.0))
+                lf_hf = float(np.clip((sdnn / max(rmssd, 1.0)) ** 2, 0.1, 10.0))
+                features = {"mean_hr": hr, "rmssd": rmssd, "pnn50": pnn50, "lf_hf": lf_hf}
+            else:
+                # 2. Legacy 34-feature model fallback
+                features = self._hrv_to_features(rmssd, mean_rr, hr, sdnn)
+
             pred = self._predict_stress_internal(features, self.model_bundle)
             
-            if pred['condition'].lower() in ['high_stress', 'stressed', 'time pressure', 'time_pressure'] and pred['confidence'] > 75:
+            cond = str(pred.get('condition', '')).lower()
+            if cond in ['high_stress', 'stressed', 'time pressure', 'time_pressure', 'stress'] and pred['confidence'] > 70:
                 return CardiacAlert(
                     AlertLevel.STRESS_HIGH,
                     f"🧠 AI STRESS DETECTED: {pred['condition']} ({pred['confidence']:.0f}%)",
@@ -204,26 +215,38 @@ class CardiacIntelligence:
             X = pd.DataFrame([[hrv_features.get(f, 0.0) for f in feature_names]], columns=feature_names)
             X_scaled = scaler.transform(X)
             
-            prediction = model.predict(X_scaled)[0]
+            raw_pred = model.predict(X_scaled)[0]
             
+            # Resolve condition name from class labels or classes list
+            class_labels = bundle.get("class_labels", {})
+            classes = bundle.get("classes", [])
+            if isinstance(raw_pred, (int, np.integer)) and raw_pred in class_labels:
+                condition = class_labels[raw_pred]
+            elif isinstance(raw_pred, (int, np.integer)) and 0 <= raw_pred < len(classes):
+                condition = str(classes[raw_pred])
+            else:
+                condition = str(raw_pred)
+
             # Get confidence and per-class probabilities
             if hasattr(model, 'predict_proba'):
                 probs = model.predict_proba(X_scaled)[0]
                 confidence = float(max(probs) * 100)
                 le = bundle.get("label_encoder")
                 if le is not None and hasattr(le, 'classes_'):
-                    classes = le.classes_
+                    cls_names = [str(c) for c in le.classes_]
+                elif classes:
+                    cls_names = [str(c) for c in classes]
                 elif hasattr(model, 'classes_'):
-                    classes = model.classes_
+                    cls_names = [str(c) for c in model.classes_]
                 else:
-                    classes = [f"class_{i}" for i in range(len(probs))]
-                probabilities = {str(c): float(p) for c, p in zip(classes, probs)}
+                    cls_names = [f"class_{i}" for i in range(len(probs))]
+                probabilities = {cls_names[i]: float(probs[i]) for i in range(len(probs))}
             else:
                 confidence = 75.0
-                probabilities = {str(prediction): 0.75}
+                probabilities = {condition: 0.75}
             
             return {
-                "condition": str(prediction),
+                "condition": condition,
                 "confidence": confidence,
                 "probabilities": probabilities
             }
